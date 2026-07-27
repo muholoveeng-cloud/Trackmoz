@@ -1,0 +1,40 @@
+# Deploy automático por FTP quando fizer push para main.
+# No GitHub: Settings → Secrets and variables → Actions
+# Crie: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, FTP_SERVER_DIR (ex: /htdocs/ ou /)
+#
+# No site.je / InfinityFree isto funciona (eles dão FTP).
+# Atenção: o anti-bot aes.js do plano grátis continua; PWA pode falhar.
+
+name: Deploy FTP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/realtime/node_modules/**
+            **/.github/**
+            **/uploads/**
+            **/*.zip
+            **/*.rar
+            **/.env
+            **/docs/**
+            **/*.md

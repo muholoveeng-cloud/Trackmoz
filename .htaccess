@@ -1,0 +1,46 @@
+Redirect 302 /__htaccess_test /trackmoz/
+RewriteEngine On
+
+# Redirect legacy URLs that used a space in the folder name
+RewriteCond %{THE_REQUEST} \s/+Frete%20Ship/ [NC]
+RewriteRule ^Frete\ Ship/(.*)$ /trackmoz/$1 [R=301,L]
+
+# Also handle direct requests where the path is already decoded
+RewriteRule ^Frete\ Ship/(.*)$ /trackmoz/$1 [R=301,L]
+
+# Security: Block directory listing
+Options -Indexes
+
+# Security: Protect sensitive files and directories
+<FilesMatch "^\.(htaccess|htpasswd|ini|log|sh|sql|env)$">
+    Require all denied
+</FilesMatch>
+
+# Protect config, database, scripts, and storage directories
+<IfModule mod_authz_core.c>
+    <RequireAll>
+        Require all granted
+        Require not env block_access
+    </RequireAll>
+</IfModule>
+
+# Block access to sensitive directories
+RewriteRule ^(config|database|scripts|storage|\.git)/ - [F,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# PWA: service worker sem cache agressivo
+<IfModule mod_headers.c>
+    <FilesMatch "^sw\.js$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# Disable server signature
+ServerSignature Off

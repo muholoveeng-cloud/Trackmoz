@@ -1,0 +1,61 @@
+/* Perfil — layout partilhado empresa / motorista */
+.perfil-page { max-width: 1100px; margin: 0 auto; padding-bottom: 2rem; }
+.perfil-hero {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    border-radius: 16px;
+    color: #fff;
+    padding: 1.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
+}
+.perfil-hero .avatar-wrap {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.35);
+    overflow: hidden;
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.perfil-hero .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    background: #fff;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+.perfil-card .card-head {
+    padding: .85rem 1.25rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 600;
+    font-size: .95rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.perfil-card .card-body { padding: 1.25rem; }
+.perfil-kv { margin-bottom: .85rem; }
+.perfil-kv .label { font-size: .75rem; color: #64748b; text-transform: uppercase; letter-spacing: .03em; margin-bottom: .15rem; }
+.perfil-kv .value { font-weight: 600; color: #1e293b; word-break: break-word; }
+.perfil-stat {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.perfil-stat .num { font-size: 1.75rem; font-weight: 700; color: #2563eb; line-height: 1.1; }
+.perfil-stat .lbl { font-size: .78rem; color: #64748b; margin-top: .25rem; }
+.perfil-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.perfil-modal .modal-body { max-height: min(70vh, 620px); overflow-y: auto; }
+.perfil-card .card-head .nav-tabs { border-bottom: none; margin-bottom: -1px; padding: .5rem .75rem 0; width: 100%; }
+.perfil-card .card-head .nav-link { font-size: .85rem; font-weight: 600; color: #64748b; border: none; }
+.perfil-card .card-head .nav-link.active { color: #2563eb; background: #fff; border-bottom: 2px solid #2563eb; }
+@media (max-width: 767.98px) {
+    .perfil-hero { text-align: center; }
+    .perfil-hero .d-flex { flex-direction: column; align-items: center !important; }
+    .perfil-actions { justify-content: center; }
+}

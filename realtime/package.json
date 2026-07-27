@@ -1,0 +1,12 @@
+{
+  "name": "trackmoz-realtime",
+  "version": "1.0.0",
+  "description": "Servidor Socket.IO opcional para TrackMoz TMS",
+  "main": "socket-server.js",
+  "scripts": {
+    "start": "node socket-server.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.5"
+  }
+}
