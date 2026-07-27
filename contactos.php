@@ -1,7 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/config/app.php';
-
 $pageTitle = 'Contactos | TrackMoz Moçambique';
 $pageDescription = 'Contacte a equipa TrackMoz. Suporte para empresas, transportadoras e camionistas em Moçambique.';
 $activeNav = 'contactos';

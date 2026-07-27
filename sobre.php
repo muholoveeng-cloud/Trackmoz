@@ -1,10 +1,6 @@
 <?php
-session_start();
-require_once __DIR__ . '/config/app.php';
-
 $pageTitle = 'Sobre o TrackMoz | Plataforma de Fretes em Moçambique';
 $pageDescription = 'Conheça o TrackMoz: plataforma digital que moderniza o transporte rodoviário de cargas em Moçambique, ligando empresas, transportadoras e camionistas.';
-$pageCanonical = null;
 $activeNav = 'sobre';
 require __DIR__ . '/includes/public-header.php';
 ?>

@@ -1,7 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/config/app.php';
-
 $pageTitle = 'Política de Privacidade | TrackMoz';
 $pageDescription = 'Como o TrackMoz trata dados pessoais, localização GPS e documentos de utilizadores em Moçambique.';
 $activeNav = '';

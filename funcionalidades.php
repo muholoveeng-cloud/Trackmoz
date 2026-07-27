@@ -1,7 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/config/app.php';
-
 $pageTitle = 'Funcionalidades | TrackMoz — Gestão de Fretes e Logística';
 $pageDescription = 'Gestão de fretes, contratos digitais, rastreamento GPS, OTP de entrega, parcerias e modo condução. Conheça as funcionalidades do TrackMoz.';
 $activeNav = 'funcionalidades';

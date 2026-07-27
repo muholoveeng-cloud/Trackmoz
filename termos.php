@@ -1,7 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/config/app.php';
-
 $pageTitle = 'Termos de Utilização | TrackMoz';
 $pageDescription = 'Termos de utilização da plataforma TrackMoz — regras de uso para empresas, transportadoras e camionistas.';
 $activeNav = '';

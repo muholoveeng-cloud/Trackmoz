@@ -91,28 +91,28 @@ if (!function_exists('tmz_seo_render_head')) {
         echo '<meta name="description" content="' . $esc($desc) . "\">\n";
         echo '<meta name="keywords" content="' . $esc($keywords) . "\">\n";
         echo '<meta name="robots" content="' . $esc($robots) . "\">\n";
-        echo '<meta name="author" content="TrackMoz">\n";
-        echo '<link rel="canonical" href="' . $esc($canonical) . "\">\n";
+        echo '<meta name="author" content="TrackMoz">' . "\n";
+        echo '<link rel="canonical" href="' . $esc($canonical) . '">' . "\n";
 
         // Open Graph
-        echo '<meta property="og:type" content="' . $esc($type) . "\">\n";
-        echo '<meta property="og:site_name" content="' . $esc($site) . "\">\n";
-        echo '<meta property="og:title" content="' . $esc($title) . "\">\n";
-        echo '<meta property="og:description" content="' . $esc($desc) . "\">\n";
-        echo '<meta property="og:url" content="' . $esc($canonical) . "\">\n";
-        echo '<meta property="og:image" content="' . $esc($image) . "\">\n";
-        echo '<meta property="og:locale" content="' . $esc($locale) . "\">\n";
+        echo '<meta property="og:type" content="' . $esc($type) . '">' . "\n";
+        echo '<meta property="og:site_name" content="' . $esc($site) . '">' . "\n";
+        echo '<meta property="og:title" content="' . $esc($title) . '">' . "\n";
+        echo '<meta property="og:description" content="' . $esc($desc) . '">' . "\n";
+        echo '<meta property="og:url" content="' . $esc($canonical) . '">' . "\n";
+        echo '<meta property="og:image" content="' . $esc($image) . '">' . "\n";
+        echo '<meta property="og:locale" content="' . $esc($locale) . '">' . "\n";
 
         // Twitter
-        echo '<meta name="twitter:card" content="summary_large_image">\n';
-        echo '<meta name="twitter:title" content="' . $esc($title) . "\">\n";
-        echo '<meta name="twitter:description" content="' . $esc($desc) . "\">\n";
-        echo '<meta name="twitter:image" content="' . $esc($image) . "\">\n";
+        echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
+        echo '<meta name="twitter:title" content="' . $esc($title) . '">' . "\n";
+        echo '<meta name="twitter:description" content="' . $esc($desc) . '">' . "\n";
+        echo '<meta name="twitter:image" content="' . $esc($image) . '">' . "\n";
 
         // Favicons (além do pwa-head)
-        echo '<link rel="icon" href="' . $esc($iconBase) . "/icon-192.png\" sizes=\"192x192\" type=\"image/png\">\n";
-        echo '<link rel="shortcut icon" href="' . $esc($iconAlt) . "/Logo_sem_background.png\">\n";
-        echo '<link rel="apple-touch-icon" href="' . $esc($iconBase) . "/apple-touch-icon.png\">\n";
+        echo '<link rel="icon" href="' . $esc($iconBase) . '/icon-192.png" sizes="192x192" type="image/png">' . "\n";
+        echo '<link rel="shortcut icon" href="' . $esc($iconAlt) . '/Logo_sem_background.png">' . "\n";
+        echo '<link rel="apple-touch-icon" href="' . $esc($iconBase) . '/apple-touch-icon.png">' . "\n";
 
         if ($withSchema) {
             $schemas = [

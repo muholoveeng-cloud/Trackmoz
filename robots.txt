@@ -14,4 +14,5 @@ Disallow: /tools/
 Disallow: /uploads/
 Disallow: /realtime/
 
+Sitemap: https://trackmoz.site.je/sitemap.xml
 Sitemap: https://trackmoz.site.je/sitemap.php
