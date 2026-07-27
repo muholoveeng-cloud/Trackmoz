@@ -395,6 +395,7 @@ body.tm-has-bottom-nav { padding-bottom: calc(64px + env(safe-area-inset-bottom)
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>/pages/admin/dashboard.php"><i class="bi bi-speedometer2"></i> Painel Admin</a></li>
                     <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>/pages/admin/dashboard-executivo.php"><i class="bi bi-graph-up"></i> Executivo</a></li>
+                    <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>/pages/admin/acessos.php"><i class="bi bi-eye"></i> Acessos / Visitas</a></li>
                     <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>/pages/admin/relatorios.php"><i class="bi bi-bar-chart"></i> Relatórios</a></li>
                     <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>/pages/admin/configuracoes.php"><i class="bi bi-gear"></i> Configurações</a></li>
                 </ul>
@@ -550,6 +551,7 @@ body.tm-has-bottom-nav { padding-bottom: calc(64px + env(safe-area-inset-bottom)
             <div class="tm-off-section">Sistema</div>
             <a class="tm-off-link" href="<?php echo BASE_URL; ?>/pages/admin/dashboard.php"><i class="bi bi-speedometer2"></i> Painel Admin</a>
             <a class="tm-off-link" href="<?php echo BASE_URL; ?>/pages/admin/dashboard-executivo.php"><i class="bi bi-graph-up"></i> Executivo</a>
+            <a class="tm-off-link" href="<?php echo BASE_URL; ?>/pages/admin/acessos.php"><i class="bi bi-eye"></i> Acessos / Visitas</a>
             <a class="tm-off-link" href="<?php echo BASE_URL; ?>/pages/admin/relatorios.php"><i class="bi bi-bar-chart"></i> Relatórios</a>
             <a class="tm-off-link" href="<?php echo BASE_URL; ?>/pages/admin/configuracoes.php"><i class="bi bi-gear"></i> Configurações</a>
             <?php elseif ($user_type === 'transportador'): ?>
@@ -789,4 +791,13 @@ window.TRACKMOZ_DRIVER_ALERTS = {
     ensureBootstrap(function () {});
 })();
 </script>
+<?php
+// Heartbeat: utilizador autenticado conta como "online" no painel admin
+if (!empty($_SESSION['user_id']) && isset($conn) && $conn instanceof PDO) {
+    try {
+        require_once __DIR__ . '/analytics-helpers.php';
+        tmz_analytics_track($conn, 'heartbeat', (int)$_SESSION['user_id'], $_SERVER['REQUEST_URI'] ?? null);
+    } catch (Throwable $e) { /* ignore */ }
+}
+?>
 <?php include_once __DIR__ . '/pwa-boot.php'; ?>

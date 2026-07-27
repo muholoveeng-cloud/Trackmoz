@@ -7,6 +7,8 @@ vendor/
 .env
 .env.*
 !.env.example
+config/database.local.php
+
 
 # Uploads e ficheiros gerados
 uploads/**

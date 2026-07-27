@@ -9,6 +9,13 @@ $verSitePublico = empty($_SESSION['user_id'])
 $lpLogado = !empty($_SESSION['user_id']);
 
 if ($verSitePublico) {
+    // Contagem de views da página pública (hoje / visitantes únicos)
+    try {
+        require_once __DIR__ . '/includes/analytics-helpers.php';
+        if (isset($conn) && $conn instanceof PDO) {
+            tmz_analytics_track($conn, 'pageview', null, '/index.php?site=1');
+        }
+    } catch (Throwable $e) { /* ignore */ }
     ?>
     <!DOCTYPE html>
     <html lang="pt">

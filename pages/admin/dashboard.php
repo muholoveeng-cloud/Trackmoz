@@ -6,10 +6,12 @@ require_once '../../includes/auth.php';
 require_once '../../includes/helpers.php';
 require_once '../../includes/notificacoes.php';
 require_once '../../includes/kpi-helpers.php';
+require_once '../../includes/analytics-helpers.php';
 
 require_role(['admin'], '../login.php');
 
 $kpiAdmin = kpi_admin($conn);
+$axHoje = tmz_analytics_resumo_hoje($conn);
 
 $contasIrregulares = 0;
 try {
@@ -198,6 +200,45 @@ $resumo_notificacoes = obter_resumo_notificacoes($conn);
                         'documentos_pendentes'=> ['label' => 'Documentos pendentes'],
                     ]);
                     ?>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-uppercase fw-bold mb-0" style="letter-spacing:.06em;color:#64748b">Acessos hoje</h2>
+                    <a href="acessos.php" class="small text-decoration-none">Ver detalhe →</a>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body py-3">
+                                <div class="small text-muted">Views site</div>
+                                <div class="fs-3 fw-bold"><?php echo (int)$axHoje['pageviews_hoje']; ?></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body py-3">
+                                <div class="small text-muted">Visitantes únicos</div>
+                                <div class="fs-3 fw-bold"><?php echo (int)$axHoje['visitantes_unicos_hoje']; ?></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body py-3">
+                                <div class="small text-muted">Logins</div>
+                                <div class="fs-3 fw-bold text-primary"><?php echo (int)$axHoje['logins_hoje']; ?></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body py-3">
+                                <div class="small text-muted">Online agora</div>
+                                <div class="fs-3 fw-bold text-success"><?php echo (int)$axHoje['online_agora']; ?></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Resumo da plataforma -->
@@ -568,7 +609,15 @@ $resumo_notificacoes = obter_resumo_notificacoes($conn);
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         Usuários Online
-                                        <span class="badge bg-success rounded-pill">8</span>
+                                        <span class="badge bg-success rounded-pill"><?php echo (int)$axHoje['online_agora']; ?></span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Views site (hoje)
+                                        <span class="badge bg-info rounded-pill"><?php echo (int)$axHoje['pageviews_hoje']; ?></span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Logins (hoje)
+                                        <span class="badge bg-primary rounded-pill"><?php echo (int)$axHoje['logins_hoje']; ?></span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         Missões Ativas

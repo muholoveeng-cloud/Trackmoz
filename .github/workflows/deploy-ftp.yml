@@ -36,5 +36,6 @@ jobs:
             **/*.zip
             **/*.rar
             **/.env
+            **/config/database.local.php
             **/docs/**
             **/*.md

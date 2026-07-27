@@ -27,6 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_type'] = $usuario['tipo_usuario'];
             $_SESSION['user_email'] = $usuario['email'];
 
+            try {
+                require_once __DIR__ . '/../includes/analytics-helpers.php';
+                tmz_analytics_track($conn, 'login', (int)$usuario['id'], '/pages/login.php');
+            } catch (Throwable $e) { /* ignore */ }
+
             if ($usuario['tipo_usuario'] === 'caminhoneiro') {
                 $stmt = $conn->prepare("SELECT * FROM perfil_caminhoneiro WHERE usuario_id = ?");
                 $stmt->execute([$usuario['id']]);
