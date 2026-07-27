@@ -92,6 +92,7 @@ if (!function_exists('tmz_seo_render_head')) {
         echo '<meta name="keywords" content="' . $esc($keywords) . "\">\n";
         echo '<meta name="robots" content="' . $esc($robots) . "\">\n";
         echo '<meta name="author" content="TrackMoz">' . "\n";
+        echo '<meta name="google-site-verification" content="jOOcntat5Z4uwOya4EDbYPv4JvP0OI3SKra9mrgt6dY">' . "\n";
         echo '<link rel="canonical" href="' . $esc($canonical) . '">' . "\n";
 
         // Open Graph
