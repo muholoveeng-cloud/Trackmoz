@@ -67,6 +67,7 @@ $checklistDefs = checklist_definicoes();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Em Viagem — TrackMoz</title>
+    <?php include_once __DIR__ . '/../../includes/pwa-head.php'; ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
@@ -481,8 +482,9 @@ $checklistDefs = checklist_definicoes();
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="<?php echo BASE_URL; ?>/assets/js/offline-sync.js?v=1"></script>
 <script src="<?php echo BASE_URL; ?>/assets/js/mapa-core.js"></script>
-<script src="<?php echo BASE_URL; ?>/assets/js/gps-tracker.js"></script>
+<script src="<?php echo BASE_URL; ?>/assets/js/gps-tracker.js?v=2"></script>
 <script>
 const BASE_URL   = <?php echo json_encode(BASE_URL); ?>;
 const MISSAO_ID  = <?php echo json_encode($missao_id); ?>;
@@ -503,6 +505,87 @@ const CHECKLIST_ESTADO  = <?php echo json_encode($checklistEstado); ?>;
 const CHECKLIST_DEFS    = <?php echo json_encode($checklistDefs); ?>;
 let checklistPendente   = null;
 let checklistCallback   = null;
+
+const MISSAO_SNAPSHOT = {
+    missaoId: MISSAO_ID,
+    origem: ORIGEM_NOME,
+    destino: DESTINO_NOME,
+    origem_lat: ORIGEM_LAT,
+    origem_lng: ORIGEM_LNG,
+    destino_lat: DEST_LAT,
+    destino_lng: DEST_LNG,
+    status: STATUS_MISSAO,
+    status_viagem: STATUS_VIAGEM,
+    modo_conducao_ativo: MODO_ATIVO,
+    tempo_conducao_acumulado_seg: TEMPO_ACUMULADO,
+    checklist: CHECKLIST_ESTADO,
+};
+
+function optimisticStatus(acao, etapa) {
+    const map = {
+        iniciar: { status: 'em_andamento', status_viagem: 'a_caminho_recolha', message: 'Viagem iniciada (offline)' },
+        chegou_origem: { status: 'em_andamento', status_viagem: 'aguardando_recolha', message: 'Chegada à recolha (offline)' },
+        recolheu: { status: 'em_transito', status_viagem: 'carga_recolhida', message: 'Recolha confirmada (offline)' },
+        chegada_destino: { status: 'em_entrega', status_viagem: 'entrega', message: 'Chegada ao destino (offline)' },
+        concluir: { status: 'concluida', status_viagem: 'finalizada', message: 'Missão concluída (offline)' },
+    };
+    if (acao === 'atualizar' && etapa === 'entrega') {
+        return { status: 'em_transito', status_viagem: 'em_transito', message: 'A caminho do destino (offline)' };
+    }
+    return map[acao] || null;
+}
+
+function aplicarEstadoViagem(status, statusViagem, mensagem) {
+    if (status) STATUS_MISSAO = status;
+    if (statusViagem) STATUS_VIAGEM = statusViagem;
+    const gpsLabelEl = document.getElementById('gpsLabel');
+    if (gpsLabelEl && mensagem) {
+        const prev = gpsLabelEl.textContent;
+        gpsLabelEl.textContent = '✓ ' + mensagem;
+        setTimeout(() => { gpsLabelEl.textContent = prev; }, 3000);
+    }
+    if (typeof lastRouteKey !== 'undefined') lastRouteKey = '';
+    if (typeof desenharRotaAtiva === 'function') desenharRotaAtiva(true);
+    if (typeof actualizarBotoesConducao === 'function') actualizarBotoesConducao();
+    guardarCacheMissao();
+}
+
+function guardarCacheMissao() {
+    if (!window.TrackMozOffline) return;
+    TrackMozOffline.cacheMission(MISSAO_ID, Object.assign({}, MISSAO_SNAPSHOT, {
+        status: STATUS_MISSAO,
+        status_viagem: STATUS_VIAGEM,
+        origem_lat: ORIGEM_LAT,
+        origem_lng: ORIGEM_LNG,
+        destino_lat: DEST_LAT,
+        destino_lng: DEST_LNG,
+        checklist: CHECKLIST_ESTADO,
+    }));
+}
+
+async function restaurarCacheMissao() {
+    if (!window.TrackMozOffline) return;
+    try {
+        const cached = await TrackMozOffline.getCachedMission(MISSAO_ID);
+        if (!cached) return;
+        if (cached.status) STATUS_MISSAO = cached.status;
+        if (cached.status_viagem) STATUS_VIAGEM = cached.status_viagem;
+        if (cached.origem_lat != null) ORIGEM_LAT = cached.origem_lat;
+        if (cached.origem_lng != null) ORIGEM_LNG = cached.origem_lng;
+        if (cached.destino_lat != null) DEST_LAT = cached.destino_lat;
+        if (cached.destino_lng != null) DEST_LNG = cached.destino_lng;
+        if (cached.checklist && typeof cached.checklist === 'object') {
+            Object.assign(CHECKLIST_ESTADO, cached.checklist);
+        }
+        const topDest = document.getElementById('topDest');
+        if (topDest && cached.destino) topDest.textContent = '→ ' + cached.destino;
+    } catch (_) { /* ignore */ }
+}
+
+if (window.TrackMozOffline) {
+    guardarCacheMissao();
+    TrackMozOffline.onChange(function () { /* banner gerido pelo offline-sync */ });
+}
 
 // ── Mapa (Moçambique) ─────────────────────────────────────────
 const MZ_BOUNDS = [[-27.5, 30.0], [-10.0, 41.0]];
@@ -1201,6 +1284,38 @@ async function accaoViagem(acao, etapa) {
     await accaoViagemExecutar(acao, etapa);
 }
 
+async function enfileirarStatusViagem(acao, etapa) {
+    if (!window.TrackMozOffline) return false;
+    if (acao === 'aguardar_codigo') {
+        alert('Confirmação por código OTP precisa de rede. Conecte-se e tente novamente.');
+        return false;
+    }
+    const opt = optimisticStatus(acao, etapa);
+    if (!opt) {
+        alert('Esta acção não pode ser feita offline.');
+        return false;
+    }
+    const body = {
+        missao_id: MISSAO_ID,
+        acao: acao,
+        client_op_id: TrackMozOffline.uuid(),
+    };
+    if (etapa) body.etapa = etapa;
+    const pos = posicaoMotorista();
+    if (pos) {
+        body.latitude = pos.lat;
+        body.longitude = pos.lng;
+    }
+    await TrackMozOffline.enqueue({
+        type: 'status_viagem',
+        url: BASE_URL + '/pages/caminhoneiro/atualizar-status-viagem.php',
+        body: body,
+        meta: { missaoId: MISSAO_ID, acao: acao },
+    });
+    aplicarEstadoViagem(opt.status, opt.status_viagem, 'Guardado — sync quando houver rede');
+    return true;
+}
+
 async function accaoViagemExecutar(acao, etapa) {
     if (acao === 'chegada_destino' && !etapaDestino() && STATUS_VIAGEM !== 'carga_recolhida') {
         alert('Confirme a recolha da carga antes de seguir para o destino.');
@@ -1217,10 +1332,16 @@ async function accaoViagemExecutar(acao, etapa) {
         return true;
     }
 
+    if (!navigator.onLine) {
+        return enfileirarStatusViagem(acao, etapa);
+    }
+
     const form = new FormData();
     form.append('missao_id', MISSAO_ID);
     form.append('acao', acao);
     if (etapa) form.append('etapa', etapa);
+    const clientOpId = window.TrackMozOffline ? TrackMozOffline.uuid() : null;
+    if (clientOpId) form.append('client_op_id', clientOpId);
     const pos = posicaoMotorista();
     if (pos) {
         form.append('latitude', pos.lat);
@@ -1241,25 +1362,14 @@ async function accaoViagemExecutar(acao, etapa) {
             return false;
         }
 
-        if (d.status) STATUS_MISSAO = d.status;
-        if (d.status_viagem) STATUS_VIAGEM = d.status_viagem;
-
-        const gpsLabelEl = document.getElementById('gpsLabel');
-        const prev = gpsLabelEl.textContent;
-        gpsLabelEl.textContent = '✓ ' + (d.message || 'Actualizado');
-        setTimeout(() => gpsLabelEl.textContent = prev, 3000);
-
-        lastRouteKey = '';
-        desenharRotaAtiva(true);
-        actualizarBotoesConducao();
+        aplicarEstadoViagem(d.status, d.status_viagem, d.message || 'Actualizado');
 
         if (acao === 'aguardar_codigo') {
             abrirModalOtp();
         }
         return true;
     } catch (_) {
-        alert('Sem ligação. Tente novamente.');
-        return false;
+        return enfileirarStatusViagem(acao, etapa);
     }
 }
 
@@ -1355,12 +1465,19 @@ document.getElementById('otpLinkCompleto')?.addEventListener('click', function(e
 })();
 
 // ── Inicialização ─────────────────────────────────────────────
-if (modoConducaoAtivo) {
-    iniciarTimer();
-}
-atualizarTimerDisplay();
-actualizarBotoesConducao();
-iniciarGpsTracker();
+(async function initModoDirecaoOffline() {
+    await restaurarCacheMissao();
+    guardarCacheMissao();
+    if (modoConducaoAtivo) {
+        iniciarTimer();
+    }
+    atualizarTimerDisplay();
+    actualizarBotoesConducao();
+    iniciarGpsTracker();
+    if (window.TrackMozOffline && navigator.onLine) {
+        TrackMozOffline.flush();
+    }
+})();
 </script>
 </body>
 </html>

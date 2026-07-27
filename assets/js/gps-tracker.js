@@ -1,5 +1,5 @@
 /**
- * TrackMoz GPS Tracker — transmissão a cada 5s com fila offline.
+ * TrackMoz GPS Tracker — transmissão com fila offline persistente (IndexedDB).
  */
 window.TrackMozGpsTracker = class {
     constructor(options = {}) {
@@ -16,12 +16,17 @@ window.TrackMozGpsTracker = class {
         this.watchId = null;
         this.timerId = null;
         this.lastPos = null;
-        this.pendingQueue = [];
-        this.isOnline = navigator.onLine;
         this.gpsLostAt = null;
+        this.isOnline = navigator.onLine;
 
-        window.addEventListener('online', () => this._handleOnline());
-        window.addEventListener('offline', () => { this.isOnline = false; });
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.onOnline();
+            if (window.TrackMozOffline) TrackMozOffline.flush();
+        });
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+        });
     }
 
     start() {
@@ -53,9 +58,7 @@ window.TrackMozGpsTracker = class {
             accuracy: pos.coords.accuracy != null ? +pos.coords.accuracy.toFixed(1) : null,
             ts: Date.now(),
         };
-        if (this.gpsLostAt) {
-            this.gpsLostAt = null;
-        }
+        this.gpsLostAt = null;
         this.onPosition(this.lastPos);
     }
 
@@ -70,7 +73,7 @@ window.TrackMozGpsTracker = class {
         this._send(this.lastPos);
     }
 
-    async _send(pos) {
+    _payload(pos, withOpId) {
         const payload = {
             latitude: pos.lat,
             longitude: pos.lng,
@@ -80,43 +83,43 @@ window.TrackMozGpsTracker = class {
         };
         if (this.missaoId) payload.missao_id = this.missaoId;
         if (this.vehicleId) payload.vehicle_id = this.vehicleId;
+        if (withOpId && window.TrackMozOffline) {
+            payload.client_op_id = TrackMozOffline.uuid();
+        }
+        return payload;
+    }
+
+    async _enqueueGps(pos) {
+        if (!window.TrackMozOffline) return;
+        const url = `${this.baseUrl}/api/update-localizacao.php`;
+        await TrackMozOffline.enqueue({
+            type: 'gps',
+            url: url,
+            body: this._payload(pos, true),
+            meta: { missaoId: this.missaoId },
+        });
+    }
+
+    async _send(pos) {
+        const url = `${this.baseUrl}/api/update-localizacao.php`;
 
         if (!navigator.onLine) {
-            this.pendingQueue.push(payload);
             this.isOnline = false;
+            await this._enqueueGps(pos);
             return;
         }
 
         try {
+            const payload = this._payload(pos, false);
             const form = new FormData();
             Object.entries(payload).forEach(([k, v]) => {
                 if (v != null) form.append(k, v);
             });
-            const res = await fetch(`${this.baseUrl}/api/update-localizacao.php`, {
-                method: 'POST', body: form,
-            });
+            const res = await fetch(url, { method: 'POST', body: form, credentials: 'same-origin' });
             const data = await res.json();
             if (data.checkpoint) this.onCheckpoint(data.checkpoint);
         } catch (e) {
-            this.pendingQueue.push(payload);
-        }
-    }
-
-    async _handleOnline() {
-        this.isOnline = true;
-        this.onOnline();
-        const queue = [...this.pendingQueue];
-        this.pendingQueue = [];
-        for (const payload of queue) {
-            try {
-                const form = new FormData();
-                Object.entries(payload).forEach(([k, v]) => {
-                    if (v != null) form.append(k, v);
-                });
-                await fetch(`${this.baseUrl}/api/update-localizacao.php`, { method: 'POST', body: form });
-            } catch (e) {
-                this.pendingQueue.push(payload);
-            }
+            await this._enqueueGps(pos);
         }
     }
 };

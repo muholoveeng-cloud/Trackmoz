@@ -6,16 +6,19 @@ include_once('../config/database.php');
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-    $senha = $_POST['senha'];
+    $email = strtolower(trim((string)($_POST['email'] ?? '')));
+    $senha = (string)($_POST['senha'] ?? '');
 
     try {
-        $sql = "SELECT id, nome, email, tipo_usuario, senha, status FROM usuarios WHERE email = :email";
+        $sql = "SELECT id, nome, email, tipo_usuario, senha, status FROM usuarios WHERE LOWER(email) = :email LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->execute([':email' => $email]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($usuario && password_verify($senha, $usuario['senha'])) {
+        // Hash incompleto na BD (coluna truncada / importação má) → nunca valida
+        $hashOk = is_string($usuario['senha'] ?? null) && strlen($usuario['senha']) >= 60;
+
+        if ($usuario && $hashOk && password_verify($senha, $usuario['senha'])) {
             include_once('../includes/regras-negocio.php');
             $contaOk = validar_conta_pode_autenticar($usuario['status'] ?? '');
             if (!$contaOk['ok']) {
@@ -98,7 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
             }
         } else {
-            $error = 'Email ou senha inválidos';
+            if ($usuario && !$hashOk) {
+                $error = 'A senha desta conta está corrompida na base online. Use a recuperação de acesso ou redefina a senha.';
+            } else {
+                $error = 'Email ou senha inválidos';
+            }
         }
     } catch (PDOException $e) {
         $error = 'Erro ao fazer login. Tente novamente.';

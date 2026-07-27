@@ -12,6 +12,7 @@ include_once('../../includes/auth.php');
 include_once('../../includes/helpers.php');
 include_once('../../includes/missao-helpers.php');
 include_once('../../includes/motorista-regras.php');
+include_once('../../includes/offline-sync-helpers.php');
 
 function viagem_json_erro(string $message, ?string $solucao = null, int $http = 200): void
 {
@@ -104,12 +105,24 @@ $acao      = trim((string)($_POST['acao'] ?? ''));
 $etapa     = $_POST['etapa'] ?? null;
 $lat       = isset($_POST['latitude']) && $_POST['latitude'] !== '' ? (float)$_POST['latitude'] : null;
 $lng       = isset($_POST['longitude']) && $_POST['longitude'] !== '' ? (float)$_POST['longitude'] : null;
+$clientOpId = trim((string)($_POST['client_op_id'] ?? ''));
 
 if ($missao_id <= 0 || $acao === '') {
     viagem_json_erro(
         'Faltam dados para processar esta acção.',
         'Abra a missão pelo Modo Condução e use o botão correspondente (ex.: «Cheguei ao ponto de recolha»).'
     );
+}
+
+// Idempotência: mesma operação offline já processada
+if ($clientOpId !== '') {
+    $prev = tmz_sync_find($conn, $clientOpId);
+    if (is_array($prev)) {
+        $prev['duplicate'] = true;
+        $prev['success'] = $prev['success'] ?? true;
+        echo json_encode($prev, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
 try {
@@ -342,14 +355,27 @@ try {
     $stmtSv->execute([$missao_id]);
     $svRow = $stmtSv->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    echo json_encode([
+    $payload = [
         'success'        => true,
         'message'        => $mensagem,
         'status'         => $novoStatus ?? ($svRow['status'] ?? null),
         'status_viagem'  => $svRow['status_viagem'] ?? null,
         'status_entrega' => $statusEntrega,
         'acao'           => $tipoReg,
-    ], JSON_UNESCAPED_UNICODE);
+    ];
+
+    if ($clientOpId !== '') {
+        tmz_sync_store(
+            $conn,
+            $clientOpId,
+            (int)$_SESSION['user_id'],
+            'status_viagem:' . $acao,
+            $missao_id,
+            $payload
+        );
+    }
+
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
 
 } catch (PDOException $e) {
     error_log('atualizar-status-viagem: ' . $e->getMessage());

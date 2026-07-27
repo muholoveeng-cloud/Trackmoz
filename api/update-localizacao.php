@@ -7,6 +7,7 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 include_once('../config/database.php');
 include_once('../includes/localizacao-service.php');
+include_once('../includes/offline-sync-helpers.php');
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -42,6 +43,7 @@ $speed     = isset($input['speed'])     ? (float)$input['speed']     : null;
 $heading   = isset($input['heading'])   ? (float)$input['heading']   : null;
 $accuracy  = isset($input['accuracy'])  ? (float)$input['accuracy']  : null;
 $vehicle_id = isset($input['vehicle_id']) ? (int)$input['vehicle_id'] : null;
+$clientOpId = trim((string)($input['client_op_id'] ?? ''));
 
 if ($latitude === null || $longitude === null
     || $latitude < -90 || $latitude > 90
@@ -49,6 +51,16 @@ if ($latitude === null || $longitude === null
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'Coordenadas inválidas']);
     exit;
+}
+
+if ($clientOpId !== '') {
+    $prev = tmz_sync_find($conn, $clientOpId);
+    if (is_array($prev)) {
+        $prev['duplicate'] = true;
+        $prev['ok'] = $prev['ok'] ?? true;
+        echo json_encode($prev);
+        exit;
+    }
 }
 
 try {
@@ -63,11 +75,17 @@ try {
         exit;
     }
 
-    echo json_encode([
+    $payload = [
         'ok'         => true,
         'checkpoint' => $result['checkpoint'] ?? null,
         'timestamp'  => date('c'),
-    ]);
+    ];
+
+    if ($clientOpId !== '') {
+        tmz_sync_store($conn, $clientOpId, $user_id, 'gps', $missao_id ?: null, $payload);
+    }
+
+    echo json_encode($payload);
 } catch (Throwable $e) {
     error_log('update-localizacao: ' . $e->getMessage());
     http_response_code(500);
