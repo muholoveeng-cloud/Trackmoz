@@ -22,7 +22,14 @@ if ($verSitePublico) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TrackMoz - Plataforma inteligente de gestão de transporte rodoviário de cargas</title>
+        <?php
+        require_once __DIR__ . '/includes/seo.php';
+        tmz_seo_render_head([
+            'title' => 'TrackMoz | Plataforma de Gestão de Fretes em Moçambique',
+            'description' => 'A plataforma inteligente que conecta empresas, transportadoras e camionistas em Moçambique. Gestão de fretes, contratos digitais, rastreamento e logística.',
+            'canonical' => tmz_site_url('index.php'),
+        ], true);
+        ?>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -605,6 +612,27 @@ if ($verSitePublico) {
             .tm-footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
             .tm-divider { border-color: var(--tm-border); margin: 36px 0 20px; }
 
+            .tm-faq details {
+                background: var(--tm-surface);
+                border: 1px solid var(--tm-border);
+                border-radius: 14px;
+                padding: 14px 18px;
+                margin-bottom: 10px;
+            }
+            .tm-faq summary {
+                cursor: pointer;
+                font-weight: 650;
+                color: var(--tm-text);
+                list-style: none;
+            }
+            .tm-faq summary::-webkit-details-marker { display: none; }
+            .tm-faq details p {
+                margin: 10px 0 2px;
+                color: var(--tm-text-muted);
+                line-height: 1.6;
+                font-size: .95rem;
+            }
+
             /* ─── Reveal (suave, sem saltos) ─── */
             .reveal {
                 opacity:0; transform:translateY(12px);
@@ -661,6 +689,7 @@ if ($verSitePublico) {
                 <li><a href="#para-quem"><i class="bi bi-grid"></i> Soluções</a></li>
                 <li><a href="#funcionalidades"><i class="bi bi-stars"></i> Recursos</a></li>
                 <li><a href="#o-que-e"><i class="bi bi-info-circle"></i> Sobre Nós</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/contactos.php"><i class="bi bi-envelope"></i> Contactos</a></li>
             </ul>
             <div class="d-flex gap-2 flex-shrink-0">
                 <?php if ($lpLogado): ?>
@@ -878,6 +907,38 @@ if ($verSitePublico) {
         </div>
     </section>
 
+    <!-- FAQ -->
+    <section id="faq" class="tm-section">
+        <div class="container">
+            <div class="text-center mb-4 reveal">
+                <div class="tm-eyebrow">Perguntas frequentes</div>
+                <h2 class="tm-h2">Dúvidas comuns</h2>
+                <p class="tm-sub">Respostas rápidas sobre fretes, camionistas e a plataforma.</p>
+            </div>
+            <div class="tm-faq reveal delay-1" style="max-width:760px;margin:0 auto;">
+                <details>
+                    <summary>Como encontrar cargas em Moçambique?</summary>
+                    <p>Crie conta no TrackMoz como transportadora ou camionista, complete o perfil e aceda às missões publicadas por empresas na plataforma.</p>
+                </details>
+                <details>
+                    <summary>O TrackMoz é uma aplicação para fretes?</summary>
+                    <p>Sim. É um sistema de transporte rodoviário e gestão de fretes — com contratos digitais, GPS, modo condução e confirmação de entrega.</p>
+                </details>
+                <details>
+                    <summary>Empresas podem publicar fretes?</summary>
+                    <p>Sim. O perfil de empresa permite publicar missões, gerir parcerias e acompanhar entregas em tempo real.</p>
+                </details>
+                <details>
+                    <summary>Funciona sem internet?</summary>
+                    <p>O modo condução do motorista guarda estados e GPS em fila e sincroniza quando volta a haver rede (MVP offline).</p>
+                </details>
+            </div>
+            <p class="text-center mt-4 reveal delay-2">
+                <a href="<?php echo BASE_URL; ?>/sobre.php" style="color:var(--tm-primary);font-weight:600;">Saber mais sobre o TrackMoz →</a>
+            </p>
+        </div>
+    </section>
+
     <!-- CTA -->
     <section id="cta" class="tm-section">
         <div class="container reveal">
@@ -915,26 +976,26 @@ if ($verSitePublico) {
                 <div class="col-6 col-lg-2">
                     <h6>Produto</h6>
                     <ul>
-                        <li><a href="#o-que-e">O que é</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/sobre.php">Sobre</a></li>
                         <li><a href="#como-funciona">Como funciona</a></li>
-                        <li><a href="#funcionalidades">Funcionalidades</a></li>
-                        <li><a href="#para-quem">Perfis</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/funcionalidades.php">Funcionalidades</a></li>
+                        <li><a href="#faq">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-lg-2">
                     <h6>Legal</h6>
                     <ul>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Privacidade</a></li>
-                        <li><a href="#">Cookies</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/termos.php">Termos de Uso</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/privacidade.php">Privacidade</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>/contactos.php">Contactos</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4">
                     <h6>Contacto</h6>
                     <ul>
                         <li><a href="mailto:contacto@trackmoz.mz"><i class="bi bi-envelope me-2"></i>contacto@trackmoz.mz</a></li>
-                        <li><a href="tel:+258841234567"><i class="bi bi-telephone me-2"></i>+258 84 123 4567</a></li>
-                        <li><span style="color:var(--tm-text-muted)"><i class="bi bi-geo-alt me-2"></i>Maputo, Moçambique</span></li>
+                        <li><a href="<?php echo BASE_URL; ?>/contactos.php"><i class="bi bi-chat-dots me-2"></i>Página de contactos</a></li>
+                        <li><span style="color:var(--tm-text-muted)"><i class="bi bi-geo-alt me-2"></i>Maputo / Tete, Moçambique</span></li>
                     </ul>
                 </div>
             </div>

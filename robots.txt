@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Painéis e APIs — não indexar
+Disallow: /pages/admin/
+Disallow: /pages/caminhoneiro/
+Disallow: /pages/contratante/
+Disallow: /pages/transportador/
+Disallow: /api/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /database/
+Disallow: /tools/
+Disallow: /uploads/
+Disallow: /realtime/
+
+Sitemap: https://trackmoz.site.je/sitemap.php

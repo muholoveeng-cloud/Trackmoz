@@ -8,6 +8,7 @@ vendor/
 .env.*
 !.env.example
 config/database.local.php
+config/seo.local.php
 
 
 # Uploads e ficheiros gerados

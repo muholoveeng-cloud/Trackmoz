@@ -1,0 +1,141 @@
+/* Páginas públicas institucionais TrackMoz */
+:root {
+  --tm-bg: #c5d0db;
+  --tm-surface: #ffffff;
+  --tm-primary: #1a647f;
+  --tm-text: #15202b;
+  --tm-muted: #516374;
+  --tm-border: #b8c7d4;
+  --tm-radius: 14px;
+}
+body.tm-public {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 65% 45% at 50% 0%, rgba(232, 238, 244, .5), transparent 55%),
+    linear-gradient(180deg, #b8c5d2 0%, #c5d0db 50%, #b0becb 100%);
+  color: var(--tm-text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+.tm-pub-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--tm-border);
+  padding: 12px 0;
+}
+.tm-pub-logo { height: 40px; width: auto; }
+.tm-pub-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 1.25rem;
+  align-items: center;
+}
+.tm-pub-links a {
+  color: var(--tm-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: .92rem;
+}
+.tm-pub-links a:hover,
+.tm-pub-links a.active { color: var(--tm-primary); }
+.tm-pub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: .9rem;
+  text-decoration: none;
+}
+.tm-pub-btn.ghost {
+  color: var(--tm-primary);
+  background: transparent;
+  border: 1px solid var(--tm-border);
+}
+.tm-pub-btn.primary {
+  color: #fff;
+  background: var(--tm-primary);
+  border: 1px solid var(--tm-primary);
+}
+.tm-pub-main { padding: 48px 0 72px; }
+.tm-pub-card {
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  padding: 28px 28px 32px;
+  box-shadow: 0 8px 28px rgba(15, 40, 60, .06);
+}
+.tm-pub-card h1 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  margin: 0 0 12px;
+  color: var(--tm-text);
+}
+.tm-pub-card .lead {
+  color: var(--tm-muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+.tm-pub-card h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 1.6rem 0 .6rem;
+  color: var(--tm-primary);
+}
+.tm-pub-card p,
+.tm-pub-card li {
+  color: var(--tm-muted);
+  line-height: 1.65;
+  font-size: .98rem;
+}
+.tm-pub-card ul { padding-left: 1.2rem; }
+.tm-pub-footer {
+  background: rgba(255, 255, 255, .55);
+  border-top: 1px solid var(--tm-border);
+  padding: 40px 0 28px;
+  font-size: .9rem;
+}
+.tm-pub-footer h6 {
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tm-text);
+  margin-bottom: 12px;
+}
+.tm-pub-footer ul { list-style: none; padding: 0; margin: 0; }
+.tm-pub-footer li { margin-bottom: 8px; }
+.tm-pub-footer a { color: var(--tm-muted); text-decoration: none; }
+.tm-pub-footer a:hover { color: var(--tm-primary); }
+.tm-pub-footer .muted { color: var(--tm-muted); }
+.tm-pub-footer hr { border-color: var(--tm-border); margin: 24px 0 16px; }
+.tm-faq details {
+  border: 1px solid var(--tm-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  background: #f8fafc;
+}
+.tm-faq summary {
+  cursor: pointer;
+  font-weight: 650;
+  color: var(--tm-text);
+}
+.tm-faq details p { margin: 10px 0 4px; }
+.tm-contact-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 1rem;
+}
+.tm-contact-item {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 16px;
+}
+.tm-contact-item strong { display: block; color: var(--tm-text); margin-bottom: 4px; }
